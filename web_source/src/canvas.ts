@@ -1,51 +1,77 @@
-export function initializeCanvas(element: HTMLCanvasElement): CanvasManager {
-  let canvasManager = new CanvasManager(element);
-  return canvasManager;
-}
+import { ControlPanel } from "./controlpanel";
 
-export class CanvasManager {
-  private canvas: HTMLCanvasElement;
+export class Canvas {
+  private htmlElement: HTMLCanvasElement;
   private context: CanvasRenderingContext2D;
+  private htmlElementId: string = 'canvasapp';
+  private elementHeight: number;
+  private elementWidth: number;
+  private controlPanel: ControlPanel;
 
-  constructor(canvasElement: HTMLCanvasElement) {
-    this.canvas = canvasElement;
-    const context = this.canvas.getContext('2d');
+  private static instance: Canvas | null = null;
+
+  public static getInstance(controlPanel: ControlPanel): Canvas {
+    if (this.instance) {
+      return this.instance;
+    }
+    else {
+      this.instance = new Canvas(controlPanel);
+      return this.instance;
+    }
+  }
+
+  constructor(controlPanel: ControlPanel) {
+
+    this.controlPanel = controlPanel;
+
+    let htmlElement: HTMLCanvasElement;
+    htmlElement = document.querySelector<HTMLCanvasElement>('#' + this.htmlElementId)!;
+    if (!htmlElement) {
+      throw new Error('Canvas element not found');
+    }
+    this.htmlElement = htmlElement;
+
+    const context = this.htmlElement.getContext('2d');
     if (!context) {
       throw new Error('Failed to get 2D context for the canvas');
     }
     this.context = context;
     this.initializeCanvas();
+    this.elementHeight = this.htmlElement.width;
+    this.elementWidth = this.htmlElement.height;
   }
 
   initializeCanvas(): void {
     this.clearCanvas();
-    this.setCanvasSize(window.innerWidth, window.innerHeight - 70);
+    this.resizeCanvas();
+    window.addEventListener('resize', () => { this.resizeCanvas(); });
+  }
+
+  resizeCanvas(): void {
+    this.setCanvasSize(window.innerWidth, window.innerHeight - this.controlPanel.height);
+    this.elementHeight = this.htmlElement.width;
+    this.elementWidth = this.htmlElement.height;
+    console.log('Canvas resized:' + this.elementWidth + 'x' + this.elementHeight);
   }
 
   setCanvasSize(width: number, height: number): void {
-    this.canvas.width = width;
-    this.canvas.height = height;
+    this.htmlElement.width = width;
+    this.htmlElement.height = height;
   }
 
   clearCanvas(): void {
-    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.context.clearRect(0, 0, this.elementWidth, this.elementHeight);
   }
 
-  drawRectangle(x: number, y: number, width: number, height: number, color: string): void {
-    this.context.fillStyle = color;
-    this.context.fillRect(x, y, width, height);
+  get Height(): number {
+    return this.elementHeight;
   }
 
-  drawCircle(x: number, y: number, radius: number, color: string): void {
-    this.context.fillStyle = color;
-    this.context.beginPath();
-    this.context.arc(x, y, radius, 0, Math.PI * 2);
-    this.context.fill();
+  get Width(): number {
+    return this.elementWidth;
   }
 
-  drawText(text: string, x: number, y: number, font: string = '16px Arial', color: string = 'black'): void {
-    this.context.font = font;
-    this.context.fillStyle = color;
-    this.context.fillText(text, x, y);
+  get Context(): CanvasRenderingContext2D {
+    return this.context;
   }
 }
