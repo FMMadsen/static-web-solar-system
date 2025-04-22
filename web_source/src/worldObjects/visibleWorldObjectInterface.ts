@@ -1,5 +1,6 @@
-import { CanvasDrawer } from "../canvasDrawer";
+import { PenInterface } from "../PenInterface";
 
 export interface VisibleWorldObjectInterface {
-    draw(canvasDrawer: CanvasDrawer): void; 
+    draw(pen: PenInterface, animationTimestamp: number): void;
+    reset(): void;
 }

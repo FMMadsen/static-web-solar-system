@@ -1,8 +1,8 @@
-import { ControlPanel } from "./controlpanel";
+import { ControlPanel } from "../htmlObjects/Controlpanel";
 
 export class Canvas {
   private htmlElement: HTMLCanvasElement;
-  private context: CanvasRenderingContext2D;
+  private renderingContext: CanvasRenderingContext2D;
   private htmlElementId: string = 'canvasapp';
   private elementHeight: number;
   private elementWidth: number;
@@ -35,7 +35,7 @@ export class Canvas {
     if (!context) {
       throw new Error('Failed to get 2D context for the canvas');
     }
-    this.context = context;
+    this.renderingContext = context;
     this.initializeCanvas();
     this.elementHeight = this.htmlElement.width;
     this.elementWidth = this.htmlElement.height;
@@ -49,29 +49,29 @@ export class Canvas {
 
   resizeCanvas(): void {
     this.setCanvasSize(window.innerWidth, window.innerHeight - this.controlPanel.height);
-    this.elementHeight = this.htmlElement.width;
-    this.elementWidth = this.htmlElement.height;
     console.log('Canvas resized:' + this.elementWidth + 'x' + this.elementHeight);
   }
-
+  
   setCanvasSize(width: number, height: number): void {
     this.htmlElement.width = width;
     this.htmlElement.height = height;
+    this.elementWidth = width;
+    this.elementHeight = height;
   }
 
   clearCanvas(): void {
     this.context.clearRect(0, 0, this.elementWidth, this.elementHeight);
   }
 
-  get Height(): number {
+  get height(): number {
     return this.elementHeight;
   }
 
-  get Width(): number {
+  get width(): number {
     return this.elementWidth;
   }
 
-  get Context(): CanvasRenderingContext2D {
-    return this.context;
+  get context(): CanvasRenderingContext2D {
+    return this.renderingContext;
   }
 }
