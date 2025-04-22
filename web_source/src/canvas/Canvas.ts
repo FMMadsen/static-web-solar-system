@@ -37,8 +37,8 @@ export class Canvas {
     }
     this.renderingContext = context;
     this.initializeCanvas();
-    this.elementHeight = this.htmlElement.width;
-    this.elementWidth = this.htmlElement.height;
+    this.elementWidth = this.htmlElement.width;
+    this.elementHeight = this.htmlElement.height;
   }
 
   initializeCanvas(): void {
@@ -51,7 +51,7 @@ export class Canvas {
     this.setCanvasSize(window.innerWidth, window.innerHeight - this.controlPanel.height);
     console.log('Canvas resized:' + this.elementWidth + 'x' + this.elementHeight);
   }
-  
+
   setCanvasSize(width: number, height: number): void {
     this.htmlElement.width = width;
     this.htmlElement.height = height;

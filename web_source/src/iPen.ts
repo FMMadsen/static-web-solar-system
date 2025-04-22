@@ -1,4 +1,4 @@
-export interface PenInterface {
+export interface iPen {
     clearVisibleArea(): void;
     drawRectangle(x: number, y: number, width: number, height: number, color: string): void;
     drawCircle(x: number, y: number, radius: number, color: string): void;

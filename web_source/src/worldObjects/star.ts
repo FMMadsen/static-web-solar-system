@@ -1,40 +1,40 @@
-import { PenInterface } from "../PenInterface";
+import { Colors } from "../canvas/Colors";
+import { iPen } from "../iPen";
+import { iUIZoomer } from "../iUIZoomer";
+import { AstroObject } from "./AstroObject";
+import { iVisibleWorldObject } from "./iVisibleWorldObject";
 
-export class Star implements VisibleWorldObjectInterface {
-    private initialX: number;
-    private initialY: number;
+export class Star extends AstroObject implements iVisibleWorldObject {
+    private uiPositionX: number;
+    private uiPositionY: number;
+    private uiRadius: number;
+    private uiColor: string;
 
-    private positionX: number;
-    private positionY: number;
-    readonly radius: number = 0;
-    readonly mass: number = 0;
-    private color: string;
+    private uiZoom: iUIZoomer;
 
-    constructor(x: number, y: number, radius: number, mass: number) {
-        this.positionX = x;
-        this.positionY = y;
-        this.mass = mass;
-        this.radius = radius;
-        this.color = 'yellow';
-        
-        this.initialX = this.positionX;
-        this.initialY = this.positionY;
+    constructor(x: number, y: number, radius: number, mass: number, uiZoomer: iUIZoomer) {
+        super(x, y, mass, radius, Colors.SUN);
+
+        this.uiZoom = uiZoomer;
+
+        this.uiPositionX = this.uiZoom.convertWorldPositionXToPixel(this.astroPositionX);
+        this.uiPositionY = this.uiZoom.convertWorldPositionYToPixel(this.astroPositionY);
+        this.uiRadius = this.uiZoom.convertWorldSizeMegaObjectsToPixels(this.astroRadius);
+        this.uiColor = this.astroColor;
     }
 
     reset(): void {
-        this.positionX = this.initialX;
-        this.positionY = this.initialY;
     }
 
-    public draw(pen: PenInterface, animationTimestamp: number): void {
-        pen.drawCircle(this.x, this.y, this.radius, this.color);
+    public draw(pen: iPen, _animationTimestamp: number): void {
+        pen.drawCircle(this.uiPositionX, this.uiPositionY, this.uiRadius, this.uiColor);
     }
 
     get x(): number {
-        return this.positionX;
+        return this.astroPositionX;
     }
 
     get y(): number {
-        return this.positionY;
+        return this.astroPositionY
     }
 }

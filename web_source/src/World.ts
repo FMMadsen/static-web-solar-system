@@ -1,56 +1,40 @@
-import { PenInterface } from "./PenInterface.ts";
-import { Planet } from "./worldObjects/Planet.ts";
+import { iPen } from "./iPen.ts";
+import { iUIZoomer } from "./iUIZoomer.ts";
 import { SolarSystem } from "./worldObjects/SolarSystem.ts";
-import { VisibleWorldObjectInterface } from "./worldObjects/VisibleWorldObjectInterface.ts";
+import { iVisibleWorldObject } from "./worldObjects/iVisibleWorldObject.ts";
 
 export class World {
     private static instance: World | null = null;
-    public static getInstance(pen: PenInterface): World {
+    public static getInstance(pen: iPen, uiZoomer: iUIZoomer): World {
         if (this.instance) {
             return this.instance;
         }
         else {
-            this.instance = new World(pen);
+            this.instance = new World(pen, uiZoomer);
             return this.instance;
         }
     }
 
-    private pen: PenInterface;
-    private visibleWorldObjects: VisibleWorldObjectInterface[] = [];
+    private pen: iPen;
+    private uiZoomer: iUIZoomer;
+    private visibleWorldObjects: iVisibleWorldObject[] = [];
     private doAnimate: boolean = false;
+    private animationSpeedFactor: number = 10000000; //animating as 100 times faster than real time
 
-    private animationTimestamp: number = 0;
+    private lastAnimationTimestamp: number = 0;
+    private timeElapsedInSec: number = 0;
 
-    constructor(pen: PenInterface) {
+    constructor(pen: iPen, uiZoomer: iUIZoomer) {
         this.pen = pen;
+        this.uiZoomer = uiZoomer;
     }
 
     initialize(): void {
-
-        let solarSystem = new SolarSystem(this.pen.visibleAreaWidth, this.pen.visibleAreaHeight);
+        let solarSystem = new SolarSystem(this.uiZoomer);
         this.visibleWorldObjects.push(solarSystem);
-        // const scaleRatioKm2Px = 0.1;
-
-        let planet;
-        planet = new Planet(200, 200, 50, 0, 'yellow'); // Sun
-        this.visibleWorldObjects.push(planet);
-        planet = new Planet(300, 200, 20, 0, 'blue'); // Earth
-        this.visibleWorldObjects.push(planet);
-        planet = new Planet(350, 200, 10, 0, 'red'); // Mars
-        this.visibleWorldObjects.push(planet);
-        planet = new Planet(400, 200, 15, 0, 'green'); // Jupiter
-        this.visibleWorldObjects.push(planet);
-        planet = new Planet(450, 200, 12, 0, 'purple'); // Saturn
-        this.visibleWorldObjects.push(planet);
-        planet = new Planet(500, 200, 8, 0, 'orange'); // Uranus
-        this.visibleWorldObjects.push(planet);
-        planet = new Planet(550, 200, 6, 0, 'pink'); // Neptune
-        this.visibleWorldObjects.push(planet);
-        planet = new Planet(600, 200, 4, 0, 'gray'); // Pluto
-        this.visibleWorldObjects.push(planet);
     }
 
-    addWorldObject(worldObject: VisibleWorldObjectInterface): void {
+    addWorldObject(worldObject: iVisibleWorldObject): void {
         this.visibleWorldObjects.push(worldObject);
     }
 
@@ -67,7 +51,10 @@ export class World {
         if (!this.doAnimate)
             return;
 
-        this.animationTimestamp = timestamp;
+        this.timeElapsedInSec = (timestamp - this.lastAnimationTimestamp) / 1000; // Convert to seconds
+        this.timeElapsedInSec = this.timeElapsedInSec * this.animationSpeedFactor; // Adjust for animation speed
+        console.log(`Time elapsed: ${this.timeElapsedInSec} seconds`);
+        this.lastAnimationTimestamp = timestamp;
         this.draw();
         window.requestAnimationFrame((newTimestamp) => this.animate(newTimestamp));
     }
@@ -76,7 +63,7 @@ export class World {
 
         this.pen.clearVisibleArea();
         for (let i = 0; i < this.visibleWorldObjects.length; i++) {
-            this.visibleWorldObjects[i].draw(this.pen, this.animationTimestamp);
+            this.visibleWorldObjects[i].draw(this.pen, this.timeElapsedInSec);
         }
     }
 

@@ -1,44 +1,47 @@
-import { PenInterface } from "../PenInterface";
+import { iPen } from "../iPen";
+import { iUIZoomer } from "../iUIZoomer";
+import { AstroObject } from "./AstroObject";
+import { iVisibleWorldObject } from "./iVisibleWorldObject";
 
-export class Planet implements VisibleWorldObjectInterface {
-    private initialX: number;
-    private initialY: number;
-    private initialVelocityX: number;
-    private initialVelocityY: number;
+export class Planet extends AstroObject implements iVisibleWorldObject {
+    private name: string;
+    private uiPositionX: number;
+    private uiPositionY: number;
+    private uiRadius: number;
+    private uiColor: string;
 
-    private positionX: number;
-    private positionY: number;
-    readonly radius: number = 0;
-    readonly mass: number = 0;
-    private color: string;
-    private velocityX: number;
-    private velocityY: number;
+    private uiZoom: iUIZoomer;
 
-    constructor(x: number, y: number, radius: number, mass: number, color: string) {
-        this.positionX = x;
-        this.positionY = y;
-        this.mass = mass;
-        this.radius = radius;
-        this.color = color;
-        this.velocityX = Math.random() * 4 - 2;
-        this.velocityY = Math.random() * 4 - 2;
+    constructor(
+        x: number,
+        y: number,
+        radius: number,
+        mass: number,
+        color: string,
+        uiZoomer: iUIZoomer,
+        name: string = '',) {
 
-        this.initialX = this.positionX;
-        this.initialY = this.positionY;
-        this.initialVelocityX = this.velocityX;
-        this.initialVelocityY = this.velocityY;
+        super(x, y, mass, radius, color);
+        this.name = name;
+
+        this.uiZoom = uiZoomer;
+
+        this.uiPositionX = this.uiZoom.convertWorldPositionXToPixel(this.astroPositionX);
+        this.uiPositionY = this.uiZoom.convertWorldPositionYToPixel(this.astroPositionY);
+        this.uiRadius = this.uiZoom.convertWorldSizeToPixels(this.astroRadius);
+        this.uiColor = this.astroColor;
     }
 
     reset(): void {
-        this.positionX = this.initialX;
-        this.positionY = this.initialY;
-        this.velocityX = this.initialVelocityX;
-        this.velocityY = this.initialVelocityY;
     }
 
-    public draw(pen: PenInterface, animationTimestamp: number): void {
-        pen.drawCircle(this.positionX, this.positionY, this.radius, this.color);
-        this.positionX += this.velocityX;
-        this.positionY += this.velocityY;
+    draw(pen: iPen, timeElapsedInSec: number): void {
+        this.move(timeElapsedInSec);
+        console.log(`Drawing ${this.name} at (${this.uiPositionX}, ${this.uiPositionY}) with velocity ${this.velocity}`);
+        pen.drawCircle(this.uiPositionX, this.uiPositionY, this.uiRadius, this.uiColor);
+    }
+
+    SetObjectAttractedBy(astroObject: AstroObject): void {
+        this.astroObjectsAttractedBy.push(astroObject);
     }
 }
